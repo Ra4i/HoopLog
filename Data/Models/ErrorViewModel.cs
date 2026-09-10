@@ -1,4 +1,4 @@
-namespace HoopLog.Models
+namespace HoopLog.Data.Models
 {
     public class ErrorViewModel
     {
