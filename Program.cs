@@ -1,13 +1,20 @@
+using HoopLog.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace HoopLog
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            DotNetEnv.Env.Load();
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+        
+            builder.Services.AddDbContext<HoopLogDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
