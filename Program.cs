@@ -1,4 +1,5 @@
 using HoopLog.Data;
+using HoopLog.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace HoopLog
@@ -12,7 +13,10 @@ namespace HoopLog
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-        
+
+            builder.Services.AddScoped<IDrillService, DrillService>();
+            builder.Services.AddScoped<ISessionService, SessionService>();
+
             builder.Services.AddDbContext<HoopLogDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
