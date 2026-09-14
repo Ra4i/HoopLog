@@ -1,9 +1,8 @@
-using HoopLog.Data;
-using HoopLog.Services;
-using Microsoft.EntityFrameworkCore;
-
 namespace HoopLog
 {
+    using Microsoft.EntityFrameworkCore;
+    using Services;
+    using Data;
     public class Program
     {
         public static void Main(string[] args)

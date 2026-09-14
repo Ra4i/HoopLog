@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Drill>
+
+@{
+    ViewData["Title"] = "Drills";
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<h1>Drills</h1>
+
+<a asp-controller="Drills" asp-action="Create" class="btn btn-primary mb-3">
+    Add New Drill
+</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Description</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <th>@item.Name</th>
+                <th>@item.Category</th>
+                <th>@item.Description</th>
+                <th>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
+                          onsubmit="return confirm('Delete this drill?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </th>
+            </tr>
+        }
+    </tbody>
+
+</table>

@@ -1,9 +1,6 @@
-using HoopLog.Data.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-
 namespace HoopLog.Controllers
 {
+    using Microsoft.AspNetCore.Mvc;
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -14,11 +11,6 @@ namespace HoopLog.Controllers
         }
 
         public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
         {
             return View();
         }

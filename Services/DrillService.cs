@@ -1,9 +1,9 @@
-﻿using HoopLog.Data;
-using HoopLog.Data.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace HoopLog.Services
+﻿namespace HoopLog.Services
 {
+    using Data;
+    using Data.Models;
+    using Microsoft.EntityFrameworkCore;
+
     public class DrillService : IDrillService
     {
         private readonly HoopLogDbContext _db;
@@ -21,7 +21,26 @@ namespace HoopLog.Services
 
         public async Task<IEnumerable<Drill>> GetDrillsAsync()
         {
-            return await _db.Drills.ToListAsync();
+            return await _db.Drills.OrderByDescending(d => d.Id).ToListAsync();
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var drill = await _db.Drills.FindAsync(id);
+            if (drill is null) return false;
+
+            _db.Drills.Remove(drill);
+
+            try
+            {
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch(DbUpdateException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using HoopLog.Data;
-using HoopLog.Data.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace HoopLog.Services
+﻿namespace HoopLog.Services
 {
+    using Data;
+    using Data.Models;
+    using Microsoft.EntityFrameworkCore;
+
     public class SessionService : ISessionService
     {
         private readonly HoopLogDbContext _db;

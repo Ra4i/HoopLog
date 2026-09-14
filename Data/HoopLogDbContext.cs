@@ -1,8 +1,7 @@
-using Microsoft.EntityFrameworkCore;
-using HoopLog.Data.Models;
-
 namespace HoopLog.Data
 {
+    using Microsoft.EntityFrameworkCore;
+    using Models;
 	public class HoopLogDbContext : DbContext
 	{
 		public HoopLogDbContext() { }

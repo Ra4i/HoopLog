@@ -1,7 +1,7 @@
-using HoopLog.Data.Models;
-
 namespace HoopLog.Services
 {
+    using Data.Models;
+
     public interface ISessionService
     {
         Task<IEnumerable<TrainingSession>> GetSessionsAsync();

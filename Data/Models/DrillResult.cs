@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace HoopLog.Data.Models
+﻿namespace HoopLog.Data.Models
 {
+    using System.ComponentModel.DataAnnotations.Schema;
     public class DrillResult
     {
         public int Id { get; set; }
