@@ -1,0 +1,134 @@
+﻿@model SessionDetailsViewModel
+@using HoopLog.Data.Models
+@using HoopLog.Data.Models.Enums
+@{
+    ViewData["Title"] = "Session Details";
+}
+
+<h1>Session on @Model.Session.Date.ToString("d")</h1>
+<p><strong>Duration:</strong> @Model.Session.DurationMinutes min &nbsp;|&nbsp; <strong>Location:</strong> @Model.Session.Location</p>
+<p>@Model.Session.Notes</p>
+
+<h3>Drill Results</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Drill</th>
+            <th>Result</th>
+            <th>Notes</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Session.DrillResults)
+        {
+            <tr>
+                <td>@item.Drill.Name</td>
+                <td>@FormatResult(item)</td>
+                <td>@item.Notes</td>
+                <td>
+                    <a asp-action="EditDrillResult"
+                       asp-route-sessionId="@Model.Session.Id"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-secondary">Edit</a>
+                </td>
+                <td>
+                    <form asp-action="DeleteDrillResult"
+                          asp-route-sessionId="@Model.Session.Id"
+                          asp-route-id="@item.Id"
+                          method="post"
+                          onsubmit="return confirm('Delete this result?');"
+                          class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>Add Drill Result</h4>
+<form asp-action="AddDrillResult" asp-route-sessionId="@Model.Session.Id" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label class="form-label">Drill</label>
+        <select asp-for="DrillId" class="form-select" id="drillSelect">
+            @foreach (var d in Model.AvailableDrillEntities)
+            {
+                <option value="@d.Id" data-metric="@d.MetricType">@d.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3 metric-field" data-for="MakesAttempts">
+        <label class="form-label">Makes</label>
+        <input name="Makes" type="number" min="0" class="form-control" />
+        <span class="text-danger">@Html.ValidationMessage("input.Makes")</span>
+    </div>
+
+    <div class="mb-3 metric-field" data-for="MakesAttempts">
+        <label class="form-label">Attempts</label>
+        <input name="Attempts" type="number" min="0" class="form-control" />
+        <span class="text-danger">@Html.ValidationMessage("input.Attempts")</span>
+    </div>
+
+    <div class="mb-3 metric-field" data-for="Count Duration">
+        <label class="form-label">Value <span id="valueUnit" class="text-muted"></span></label>
+        <input name="Value" type="number" min="0" class="form-control" />
+        <span class="text-danger">@Html.ValidationMessage("input.Value")</span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Notes</label>
+        <input name="Notes" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Result</button>
+</form>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to Sessions</a>
+
+@functions {
+    string FormatResult(DrillResult r)
+    {
+        return r.Drill.MetricType switch
+        {
+            DrillMetricType.MakesAttempts when r.Makes.HasValue && r.Attempts is > 0
+                => $"{r.Makes}/{r.Attempts} ({(double)r.Makes.Value / r.Attempts.Value:P0})",
+            DrillMetricType.MakesAttempts when r.Makes.HasValue || r.Attempts.HasValue
+                => $"{r.Makes?.ToString() ?? "-"}/{r.Attempts?.ToString() ?? "-"}",
+            DrillMetricType.Count when r.Value.HasValue
+                => $"{r.Value} reps",
+            DrillMetricType.Duration when r.Value.HasValue
+                => System.TimeSpan.FromSeconds(r.Value.Value).ToString(@"m\:ss"),
+            _ => "—"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            const drillSelect = document.getElementById('drillSelect');
+            const groups = document.querySelectorAll('.metric-field');
+            const valueUnit = document.getElementById('valueUnit');
+
+            function update() {
+                const metric = drillSelect.options[drillSelect.selectedIndex]?.dataset.metric;
+
+                groups.forEach(g => {
+                    const applies = g.dataset.for.split(' ').includes(metric);
+                    g.style.display = applies ? '' : 'none';
+                });
+
+                valueUnit.textContent =
+                    metric === 'Count'    ? '(reps)' :
+                    metric === 'Duration' ? '(seconds)' : '';
+            }
+
+            drillSelect.addEventListener('change', update);
+            update();
+        })();
+    </script>
+}

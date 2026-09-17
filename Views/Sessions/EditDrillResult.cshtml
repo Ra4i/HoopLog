@@ -1,0 +1,35 @@
+@model EditDrillResultInputModel
+@{
+    ViewData["Title"] = "Edit Drill Result";
+}
+
+<h1>Edit Drill Result</h1>
+
+<form asp-action="EditDrillResult" asp-route-sessionId="@ViewData["SessionId"]" asp-route-id="@ViewData["DrillResultId"]" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="MadeShots" class="form-label"></label>
+        <input asp-for="MadeShots" class="form-control" />
+        <span asp-validation-for="MadeShots" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Attempts" class="form-label"></label>
+        <input asp-for="Attempts" class="form-control" />
+        <span asp-validation-for="Attempts" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label"></label>
+        <input asp-for="Notes" class="form-control" />
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Details" asp-route-id="@ViewData["SessionId"]" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

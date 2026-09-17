@@ -50,5 +50,39 @@
             await _db.SaveChangesAsync();
             return true;
         }
+        public async Task AddDrillResultAsync(DrillResult result)
+        {
+            _db.DrillResults.Add(result);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<DrillResult?> GetDrillResultByIdAsync(int id)
+        {
+            return await _db.DrillResults.Include(dr => dr.Drill)
+                .FirstOrDefaultAsync(dr => dr.Id == id);
+        }
+
+        public async Task<bool> UpdateDrillResultAsync(DrillResult newResult)
+        {
+            var result = await _db.DrillResults.FindAsync(newResult.Id);
+            if (result is null) return false;
+
+            result.Makes = newResult.Makes;
+            result.Attempts = newResult.Attempts;
+            result.Notes = newResult.Notes;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteDrillResultAsync(int sessionId, int id)
+        {
+            var result = await _db.DrillResults.FirstOrDefaultAsync(r => r.Id == id && r.SessionId == sessionId);
+
+            if (result is null) return false;
+
+            _db.DrillResults.Remove(result);
+            await _db.SaveChangesAsync();
+            return true;
+        }
     }
 }

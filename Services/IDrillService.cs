@@ -9,5 +9,7 @@ namespace HoopLog.Services
         Task CreateAsync(Drill drill);
 
         Task<bool> DeleteAsync(int id);
+
+        Task<Drill?> GetByIdAsync(int id);
     }
 }

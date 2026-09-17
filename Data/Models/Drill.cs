@@ -11,6 +11,8 @@
 
         public string Description { get; set; } = null!;
 
+        public DrillMetricType MetricType { get; set; }
+
         public ICollection<DrillResult> DrillResults { get; set; } = new List<DrillResult>();
     }
 }

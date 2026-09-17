@@ -4,6 +4,7 @@ using HoopLog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HoopLog.Migrations
 {
     [DbContext(typeof(HoopLogDbContext))]
-    partial class HoopLogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260916185853_AddDrillMetricType")]
+    partial class AddDrillMetricType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,7 +77,7 @@ namespace HoopLog.Migrations
                             Id = 3,
                             Category = 1,
                             Description = "Weave through cones using both hands.",
-                            MetricType = "Count",
+                            MetricType = "MakesAttempts",
                             Name = "Cone Dribbling"
                         },
                         new
@@ -82,7 +85,7 @@ namespace HoopLog.Migrations
                             Id = 4,
                             Category = 2,
                             Description = "Sprint down and back at increasing distances.",
-                            MetricType = "Duration",
+                            MetricType = "MakesAttempts",
                             Name = "Suicides"
                         },
                         new
@@ -90,7 +93,7 @@ namespace HoopLog.Migrations
                             Id = 5,
                             Category = 4,
                             Description = "Lateral slides in a defensive stance.",
-                            MetricType = "Count",
+                            MetricType = "MakesAttempts",
                             Name = "Defensive Slides"
                         },
                         new
@@ -98,7 +101,7 @@ namespace HoopLog.Migrations
                             Id = 6,
                             Category = 3,
                             Description = "Bodyweight strength circuit.",
-                            MetricType = "Count",
+                            MetricType = "MakesAttempts",
                             Name = "Core Circuit"
                         });
                 });

@@ -36,11 +36,17 @@
                 await _db.SaveChangesAsync();
                 return true;
             }
-            catch(DbUpdateException ex)
+            catch (DbUpdateException ex)
             {
                 Console.WriteLine(ex.Message);
                 return false;
             }
+        }
+
+        public async Task<Drill?> GetByIdAsync(int id)
+        {
+            var drill = await _db.Drills.FindAsync(id);
+            return drill;
         }
     }
 }

@@ -1,0 +1,53 @@
+﻿@model IEnumerable<TrainingSession>
+
+@{
+    ViewData["Title"] = "Sessions";
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<h1>Sessions</h1>
+
+<a asp-controller="Sessions" asp-action="Create" class="btn btn-primary mb-3">
+    Add New Session
+</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Details</th>
+            <th>Date</th>
+            <th>DurationMinutes</th>
+            <th>Location</th>
+            <th>Notes</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                </td>
+                <td>@item.Date</td>
+                <td>@item.DurationMinutes</td>
+                <td>@item.Location</td>
+                <td>@item.Notes</td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
+                          onsubmit="return confirm('Delete this session?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>

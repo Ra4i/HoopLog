@@ -3,6 +3,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Services;
     using Data.Models;
+    using ViewModels;
     public class DrillsController : Controller
     {
         private readonly IDrillService _drillService;
@@ -26,10 +27,17 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Drill drill)
+        public async Task<IActionResult> Create(CreateDrillInputModel input)
         {
             if (!ModelState.IsValid)
-                return View(drill);
+                return View(input);
+
+            var drill = new Drill
+            {
+                Name = input.Name,
+                Category = input.Category,
+                Description = input.Description
+            };
 
             await _drillService.CreateAsync(drill);
             return RedirectToAction(nameof(Index));

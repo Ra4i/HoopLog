@@ -1,5 +1,6 @@
 namespace HoopLog.Data
 {
+    using HoopLog.Data.Models.Enums;
     using Microsoft.EntityFrameworkCore;
     using Models;
 	public class HoopLogDbContext : DbContext
@@ -28,13 +29,19 @@ namespace HoopLog.Data
                 .HasForeignKey(dr => dr.DrillId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Drill>()
+                .Property(d => d.MetricType)
+                .HasConversion<string>()
+                .HasMaxLength(50)
+                .HasDefaultValue(DrillMetricType.MakesAttempts);
+
             modelBuilder.Entity<Drill>().HasData(
-                new Drill { Id = 1, Name = "Free Throws", Category = Models.Enums.Category.Shooting, Description = "Shoot free throws from the line, track makes out of attempts." },
-                new Drill { Id = 2, Name = "Spot-Up Jumpers", Category = Models.Enums.Category.Shooting, Description = "Shoot from five fixed spots around the arc." },
-                new Drill { Id = 3, Name = "Cone Dribbling", Category = Models.Enums.Category.BallHandling, Description = "Weave through cones using both hands." },
-                new Drill { Id = 4, Name = "Suicides", Category = Models.Enums.Category.Conditioning, Description = "Sprint down and back at increasing distances." },
-                new Drill { Id = 5, Name = "Defensive Slides", Category = Models.Enums.Category.Defense, Description = "Lateral slides in a defensive stance." },
-                new Drill { Id = 6, Name = "Core Circuit", Category = Models.Enums.Category.Fitness, Description = "Bodyweight strength circuit." }
+                new Drill { Id = 1, Name = "Free Throws", Category = Category.Shooting, Description = "Shoot free throws from the line, track makes out of attempts.", MetricType = DrillMetricType.MakesAttempts },
+                new Drill { Id = 2, Name = "Spot-Up Jumpers", Category = Category.Shooting, Description = "Shoot from five fixed spots around the arc.", MetricType = DrillMetricType.MakesAttempts },
+                new Drill { Id = 3, Name = "Cone Dribbling", Category = Category.BallHandling, Description = "Weave through cones using both hands.", MetricType = DrillMetricType.Count },
+                new Drill { Id = 4, Name = "Suicides", Category = Category.Conditioning, Description = "Sprint down and back at increasing distances.", MetricType = DrillMetricType.Duration },
+                new Drill { Id = 5, Name = "Defensive Slides", Category = Category.Defense, Description = "Lateral slides in a defensive stance.", MetricType = DrillMetricType.Count },
+                new Drill { Id = 6, Name = "Core Circuit", Category = Category.Fitness, Description = "Bodyweight strength circuit.", MetricType = DrillMetricType.Count }
             );
 
 

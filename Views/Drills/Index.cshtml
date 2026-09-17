@@ -27,15 +27,15 @@
         @foreach (var item in Model)
         {
             <tr>
-                <th>@item.Name</th>
-                <th>@item.Category</th>
-                <th>@item.Description</th>
-                <th>
+                <td>@item.Name</td>
+                <td>@item.Category</td>
+                <td>@item.Description</td>
+                <td>
                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
                           onsubmit="return confirm('Delete this drill?');">
                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                     </form>
-                </th>
+                </td>
             </tr>
         }
     </tbody>
