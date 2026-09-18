@@ -8,6 +8,8 @@ namespace HoopLog.ViewModels
 
         public int? Attempts { get; set; }
 
+        public int? Value { get; set; }
+
         public string? Notes { get; set; }
     }
 }

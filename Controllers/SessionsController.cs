@@ -58,15 +58,22 @@
             var drillResult = await _sessionService.GetDrillResultByIdAsync(id);
             if (drillResult is null || drillResult.SessionId != sessionId) return NotFound();
 
+            var drill = await _drillService.GetByIdAsync(drillResult.DrillId);
+            if (drill is null) return NotFound();
+
             var input = new EditDrillResultInputModel
             {
                 DrillId = drillResult.DrillId,
                 MadeShots = drillResult.Makes,
                 Attempts = drillResult.Attempts,
+                Value = drillResult.Value,
                 Notes = drillResult.Notes
             };
 
             ViewData["SessionId"] = sessionId;
+            ViewData["DrillResultId"] = id;
+            ViewData["DrillMetricType"] = drill.MetricType.ToString();
+            ViewData["DrillName"] = drill.Name;
             ViewData["DrillResultId"] = id;
             return View(input);
         }
@@ -146,6 +153,11 @@
             var session = await _sessionService.GetByIdAsync(sessionId);
             if (session is null) return NotFound();
 
+            var drill = await _drillService.GetByIdAsync(input.DrillId);
+            if (drill is null) return NotFound();
+
+            ValidateResultForMetric(drill.MetricType, input);
+
             if (!ModelState.IsValid)
             {
                 ViewData["SessionId"] = sessionId;
@@ -153,14 +165,13 @@
                 return View(input);
             }
 
-            var madeShots = input.MadeShots ?? 0;
-            var attempts = input.Attempts ?? 0;
-
             var updatedResult = new DrillResult
             {
                 Id = id,
-                Makes = madeShots,
-                Attempts = attempts,
+                DrillId = input.DrillId,
+                Makes = drill.MetricType == DrillMetricType.MakesAttempts ? input.MadeShots : null,
+                Attempts = drill.MetricType == DrillMetricType.MakesAttempts ? input.Attempts : null,
+                Value = drill.MetricType != DrillMetricType.MakesAttempts ? input.Value : null,
                 Notes = input.Notes
             };
 
@@ -168,6 +179,29 @@
             if (!success) return NotFound();
 
             return RedirectToAction(nameof(Details), new { id = sessionId });
+        }
+        private void ValidateResultForMetric(DrillMetricType type, EditDrillResultInputModel input)
+        {
+            switch (type)
+            {
+                case DrillMetricType.MakesAttempts:
+                    if (input.Attempts is null or <= 0)
+                        ModelState.AddModelError(nameof(input.Attempts), "Attempts must be at least 1.");
+                    if (input.MadeShots is null or < 0)
+                        ModelState.AddModelError(nameof(input.MadeShots), "Makes cannot be negative.");
+                    if (input.MadeShots.HasValue && input.Attempts.HasValue && input.MadeShots > input.Attempts)
+                        ModelState.AddModelError(nameof(input.MadeShots), "Makes cannot exceed attempts.");
+                    break;
+
+                case DrillMetricType.Count:
+                case DrillMetricType.Duration:
+                    if (input.Value is null or < 0)
+                        ModelState.AddModelError(nameof(input.Value),
+                            type == DrillMetricType.Duration
+                                ? "Duration must be zero or more seconds."
+                                : "Count must be zero or more.");
+                    break;
+            }
         }
 
         public async Task<IActionResult> Details(int id)
@@ -224,6 +258,7 @@
                 AvailableDrillEntities = drills
             };
         }
+
         private void ValidateResultForMetric(DrillMetricType type, AddDrillResultInputModel input)
         {
             switch (type)

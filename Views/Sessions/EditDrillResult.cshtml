@@ -1,28 +1,41 @@
 @model EditDrillResultInputModel
 @{
     ViewData["Title"] = "Edit Drill Result";
+    var metric = (ViewData["DrillMetricType"] ?? "").ToString();
+    var drillName = (ViewData["DrillName"] ?? "Drill").ToString();
+    bool isMakesAttempts = string.Equals(metric, "MakesAttempts", System.StringComparison.OrdinalIgnoreCase);
+    bool isCount = string.Equals(metric, "Count", System.StringComparison.OrdinalIgnoreCase);
+    bool isDuration = string.Equals(metric, "Duration", System.StringComparison.OrdinalIgnoreCase);
 }
 
-<h1>Edit Drill Result</h1>
+<h1>Edit Result - @drillName (@metric)</h1>
 
-<form asp-action="EditDrillResult" asp-route-sessionId="@ViewData["SessionId"]" asp-route-id="@ViewData["DrillResultId"]" method="post">
+<form asp-action="EditDrillResult" asp-route-sessionId="@ViewData["SessionId"]" asp-route-id="@ViewData["DrillResultId"]" method="post" id="edit-drill-form" data-metric="@metric">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="mb-3">
-        <label asp-for="MadeShots" class="form-label"></label>
-        <input asp-for="MadeShots" class="form-control" />
+    <input asp-for="DrillId" type="hidden" />
+
+    <div class="mb-3 makes-attempts" style="display:@(isMakesAttempts ? "block" : "none")">
+        <label asp-for="MadeShots" class="form-label">Made Shots</label>
+        <input asp-for="MadeShots" type="number" min="0" step="1" class="form-control" />
         <span asp-validation-for="MadeShots" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Attempts" class="form-label"></label>
-        <input asp-for="Attempts" class="form-control" />
+    <div class="mb-3 makes-attempts" style="display:@(isMakesAttempts ? "block" : "none")">
+        <label asp-for="Attempts" class="form-label">Attempts</label>
+        <input asp-for="Attempts" type="number" min="0" step="1" class="form-control" />
         <span asp-validation-for="Attempts" class="text-danger"></span>
     </div>
 
+    <div class="mb-3 value-field" style="display:@(isMakesAttempts ? "none" : "block")">
+        <label asp-for="Value" class="form-label">@((isDuration) ? "Duration (seconds)" : "Count")</label>
+        <input asp-for="Value" type="number" min="0" step="1" class="form-control" />
+        <span asp-validation-for="Value" class="text-danger"></span>
+    </div>
+
     <div class="mb-3">
-        <label asp-for="Notes" class="form-label"></label>
-        <input asp-for="Notes" class="form-control" />
+        <label asp-for="Notes" class="form-label">Notes</label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
 
@@ -32,4 +45,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            // Ensure client-side visibility matches the server-side metric
+            const form = document.getElementById('edit-drill-form');
+            if (!form) return;
+            const metric = form.getAttribute('data-metric')?.toLowerCase();
+            function applyVisibility() {
+                const shows = metric === 'makesattempts';
+                document.querySelectorAll('.makes-attempts').forEach(el => el.style.display = shows ? 'block' : 'none');
+                document.querySelectorAll('.value-field').forEach(el => el.style.display = shows ? 'none' : 'block');
+            }
+            applyVisibility();
+        })();
+    </script>
 }
