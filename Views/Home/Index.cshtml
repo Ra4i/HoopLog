@@ -2,16 +2,211 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="text-center my-5">
-    <h1 class="display-5 fw-bold">HoopLog</h1>
-    <p class="lead text-muted">Track your basketball training sessions and drills in one place.</p>
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #2D3561 0%, #1A1A2E 50%, #FF6B35 100%);
+        color: white;
+        padding: 4rem 2rem;
+        border-radius: 15px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(45, 53, 97, 0.2);
+        margin-bottom: 3rem;
+    }
 
-    <div class="d-flex justify-content-center gap-3 mt-4">
-        <a asp-controller="Sessions" asp-action="Index" class="btn btn-primary btn-lg">
-            View Sessions
-        </a>
-        <a asp-controller="Drills" asp-action="Index" class="btn btn-outline-secondary btn-lg">
-            View Drills
-        </a>
+    .hero-section::before {
+        content: '🏀';
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        font-size: 300px;
+        opacity: 0.08;
+        animation: floatAnim 6s ease-in-out infinite;
+    }
+
+    .hero-section::after {
+        content: '🔥';
+        position: absolute;
+        bottom: -20px;
+        left: -20px;
+        font-size: 200px;
+        opacity: 0.08;
+        animation: floatAnim 8s ease-in-out infinite;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        font-weight: 300;
+    }
+
+    .basketball-icon-large {
+        font-size: 5rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: spinAnim 4s linear infinite;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .feature-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(45, 53, 97, 0.1);
+        transition: all 0.3s ease;
+        border-top: 4px solid #FF6B35;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(45, 53, 97, 0.2);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+
+    .feature-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2D3561;
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-description {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .stats-section {
+        background: linear-gradient(135deg, #F7F7F7 0%, #FFFFFF 100%);
+        padding: 3rem;
+        border-radius: 15px;
+        margin-top: 3rem;
+    }
+
+    .stat-box {
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #FF6B35;
+        display: block;
+    }
+
+    .stat-label {
+        color: #2D3561;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+</style>
+
+<!-- Animations defined in external CSS file: wwwroot/css/site.css floatAnim and spinAnim -->
+
+<div class="hero-section">
+    <div class="hero-content">
+        <div class="basketball-icon-large">🏀</div>
+        <h1 class="hero-title">HoopLog</h1>
+        <p class="hero-subtitle">Your Complete Basketball Training Companion</p>
+        <p style="font-size: 1rem; opacity: 0.9;">Track your sessions, master your drills, and elevate your game to the next level</p>
+
+        <div class="action-buttons">
+            <a asp-controller="Sessions" asp-action="Index" class="btn btn-primary btn-lg" style="background: white; color: #2D3561; font-weight: 700;">
+                📊 View Sessions
+            </a>
+            <a asp-controller="Drills" asp-action="Index" class="btn btn-outline-primary btn-lg" style="border-color: white; color: white;">
+                ⚡ View Drills
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="feature-cards">
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Session Tracking</h3>
+        <p class="feature-description">Log every training session and monitor your progress over time with detailed statistics and analytics.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Drill Library</h3>
+        <p class="feature-description">Access a comprehensive collection of basketball drills designed to improve your skills and game performance.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3 class="feature-title">Performance Goals</h3>
+        <p class="feature-description">Set ambitious goals and track your achievements as you work towards becoming a better player.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <h3 class="feature-title">Progress Insights</h3>
+        <p class="feature-description">Gain valuable insights from your training data to identify strengths and areas for improvement.</p>
+    </div>
+</div>
+
+<div class="stats-section">
+    <div class="row">
+        <div class="col-md-3 stat-box">
+            <span class="stat-number">∞</span>
+            <span class="stat-label">Sessions Tracked</span>
+        </div>
+        <div class="col-md-3 stat-box">
+            <span class="stat-number">🎯</span>
+            <span class="stat-label">Drills Available</span>
+        </div>
+        <div class="col-md-3 stat-box">
+            <span class="stat-number">📈</span>
+            <span class="stat-label">Performance Growth</span>
+        </div>
+        <div class="col-md-3 stat-box">
+            <span class="stat-number">🏀</span>
+            <span class="stat-label">Game Ready</span>
+        </div>
     </div>
 </div>

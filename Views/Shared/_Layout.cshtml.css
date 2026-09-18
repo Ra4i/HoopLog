@@ -1,42 +1,86 @@
 ﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
+:root {
+  --basketball-orange: #FF6B35;
+  --basketball-purple: #2D3561;
+  --basketball-light: #F7F7F7;
+}
+
 a.navbar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
+  color: white !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+a.navbar-brand:hover {
+  transform: scale(1.05);
 }
 
 a {
-  color: #0077cc;
+  color: var(--basketball-orange);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #E85A2D;
+  text-decoration: none;
 }
 
 .btn-primary {
   color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  background: linear-gradient(135deg, var(--basketball-orange) 0%, #E85A2D 100%);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #E85A2D 0%, #CC4723 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(45, 53, 97, 0.2);
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  background: linear-gradient(135deg, var(--basketball-orange) 0%, #E85A2D 100%);
+  border-radius: 8px;
 }
 
 .border-top {
   border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom {
   border-bottom: 1px solid #e5e5e5;
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+  box-shadow: 0 4px 12px rgba(45, 53, 97, 0.15);
 }
 
 button.accept-policy {
   font-size: 1rem;
   line-height: inherit;
+  background: linear-gradient(135deg, var(--basketball-orange) 0%, #E85A2D 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button.accept-policy:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(45, 53, 97, 0.2);
 }
 
 .footer {
@@ -45,4 +89,9 @@ button.accept-policy {
   width: 100%;
   white-space: nowrap;
   line-height: 60px;
+  background: linear-gradient(135deg, var(--basketball-purple) 0%, #1f2847 100%);
+  color: white;
+  text-align: center;
+  font-size: 0.9rem;
 }
+

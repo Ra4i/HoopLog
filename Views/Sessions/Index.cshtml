@@ -3,51 +3,155 @@
 @{
     ViewData["Title"] = "Sessions";
 }
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #FF6B35 0%, #E85A2D 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(45, 53, 97, 0.15);
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 800;
+    }
+
+    .page-header-icon {
+        font-size: 3rem;
+        margin-right: 1rem;
+    }
+
+    .page-title-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .action-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .no-sessions {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .no-sessions-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .session-date {
+        font-weight: 600;
+        color: #FF6B35;
+    }
+
+    .duration-badge {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="page-header">
+    <div class="page-title-container">
+        <span class="page-header-icon">📊</span>
+        <div>
+            <h1>Training Sessions</h1>
+            <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Track your basketball training and monitor progress</p>
+        </div>
+    </div>
+</div>
+
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@TempData["Error"]</div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Error!</strong> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
-<h1>Sessions</h1>
+<div class="action-header">
+    <div>
+        <a asp-controller="Sessions" asp-action="Create" class="btn btn-primary">
+            <span style="margin-right: 0.5rem;">➕</span> Add New Session
+        </a>
+    </div>
+</div>
 
-<a asp-controller="Sessions" asp-action="Create" class="btn btn-primary mb-3">
-    Add New Session
-</a>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Details</th>
-            <th>Date</th>
-            <th>DurationMinutes</th>
-            <th>Location</th>
-            <th>Notes</th>
-
-
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
-                </td>
-                <td>@item.Date</td>
-                <td>@item.DurationMinutes</td>
-                <td>@item.Location</td>
-                <td>@item.Notes</td>
-                <td>
-                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
-                          onsubmit="return confirm('Delete this session?');">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                    </form>
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                </td>
+                <th>📅 Date</th>
+                <th>⏱️ Duration</th>
+                <th>📍 Location</th>
+                <th>📝 Notes</th>
+                <th>⚙️ Actions</th>
             </tr>
-        }
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <span class="session-date">@item.Date.ToString("MMM dd, yyyy")</span>
+                    </td>
+                    <td>
+                        <span class="duration-badge">@item.DurationMinutes min</span>
+                    </td>
+                    <td>
+                        <strong>@item.Location</strong>
+                    </td>
+                    <td>
+                        <span style="color: #666; text-overflow: ellipsis; overflow: hidden; display: block; max-width: 200px;">@item.Notes</span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="View Details">
+                                👁️
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Edit">
+                                ✏️
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete this session?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="card" style="border: 2px dashed #FF6B35;">
+        <div class="card-body no-sessions">
+            <div class="no-sessions-icon">🏀</div>
+            <h5>No Training Sessions Yet</h5>
+            <p>Start logging your basketball training sessions to track your progress. Every practice counts toward improvement!</p>
+            <a asp-controller="Sessions" asp-action="Create" class="btn btn-primary">
+                Log Your First Session
+            </a>
+        </div>
+    </div>
+}
     </tbody>
 
 </table>
