@@ -2,6 +2,7 @@ namespace HoopLog.Controllers
 {
     using System.Security.Claims;
     using Data.Models;
+    using Data.Models.Enums;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
@@ -25,15 +26,13 @@ namespace HoopLog.Controllers
             return View(new DrillIndexViewModel
             {
                 TeamGroups = drills
-                    .GroupBy(d => d.Team!)
+                    .GroupBy(d => d.TeamId)
                     .Select(group => new TeamDrillGroupViewModel
                     {
-                        Team = group.Key,
+                        Team = group.First().Team,
                         Drills = group
                     })
-                    .ToList(),
-                StarterDrills = await _drillService.GetStarterDrillsAsync(),
-                CoachedTeams = await _drillService.GetCoachedTeamsAsync(UserId)
+                    .ToList()
             });
         }
 
@@ -72,7 +71,7 @@ namespace HoopLog.Controllers
             var drill = await _drillService.GetManagedByIdAsync(id, UserId);
             if (drill is null) return NotFound();
 
-            ViewData["TeamName"] = drill.Team!.Name;
+            ViewData["TeamName"] = drill.Team.Name;
             return View(new EditDrillInputModel
             {
                 Name = drill.Name,
@@ -91,7 +90,7 @@ namespace HoopLog.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewData["TeamName"] = drill.Team!.Name;
+                ViewData["TeamName"] = drill.Team.Name;
                 return View(input);
             }
 
@@ -104,18 +103,14 @@ namespace HoopLog.Controllers
                 MetricType = input.MetricType
             };
 
-            if (!await _drillService.UpdateAsync(updatedDrill, UserId)) return NotFound();
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CopyStarter(CopyStarterDrillInputModel input)
-        {
-            if (!ModelState.IsValid ||
-                !await _drillService.CopyStarterAsync(input.StarterDrillId, input.TeamId, UserId))
+            var result = await _drillService.UpdateAsync(updatedDrill, UserId);
+            if (result == DrillUpdateResult.NotFound) return NotFound();
+            if (result == DrillUpdateResult.MetricTypeLocked)
             {
-                return NotFound();
+                ModelState.AddModelError(nameof(input.MetricType),
+                    "The metric type can't be changed because players have already logged results for this drill.");
+                ViewData["TeamName"] = drill.Team.Name;
+                return View(input);
             }
 
             return RedirectToAction(nameof(Index));

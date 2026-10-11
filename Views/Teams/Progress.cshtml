@@ -1,0 +1,40 @@
+@model TeamProgressViewModel
+@{
+    ViewData["Title"] = $"{Model.TeamName} progress";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">@Model.TeamName: player progress</h1>
+    <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.TeamId">Back to team</a>
+</div>
+
+<p class="text-muted">Results your current players logged for this team's drills.</p>
+
+@if (!Model.Results.Any())
+{
+    <p class="text-muted">No results yet. Results appear here once players log this team's drills in their sessions.</p>
+}
+else
+{
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Date</th>
+                <th>Drill</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.Results)
+            {
+                <tr>
+                    <td>@r.PlayerName</td>
+                    <td>@r.Date.ToString("d MMM yyyy")</td>
+                    <td>@r.DrillName</td>
+                    <td>@DrillResultFormatter.Format(r.MetricType, r.Makes, r.Attempts, r.Value)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

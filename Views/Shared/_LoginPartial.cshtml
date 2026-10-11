@@ -6,8 +6,12 @@
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
+        var currentUser = await UserManager.GetUserAsync(User);
+        var greetingName = string.IsNullOrWhiteSpace(currentUser?.DisplayName)
+            ? currentUser?.Email
+            : currentUser.DisplayName;
         <li class="nav-item">
-            <span class="nav-link nav-link-custom">Hello, @UserManager.GetUserName(User)</span>
+            <span class="nav-link nav-link-custom">Hello, @greetingName</span>
         </li>
         <li class="nav-item">
             <form asp-controller="Account" asp-action="Logout" method="post">

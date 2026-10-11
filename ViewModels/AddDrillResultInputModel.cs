@@ -4,17 +4,20 @@ namespace HoopLog.ViewModels
 
     public class AddDrillResultInputModel : IValidatableObject
     {
+        public const int MaxAttempts = 10_000;
+        public const int MaxValue = 100_000;
 
         public int DrillId { get; set; }
 
 
-        [Range(1, int.MaxValue)]
+        [Range(1, MaxAttempts)]
         public int? Attempts { get; set; }
 
 
-        [Range(0, int.MaxValue)]
+        [Range(0, MaxAttempts)]
         public int? Makes { get; set; }
 
+        [Range(0, MaxValue)]
         public int? Value { get; set; }
 
         [StringLength(500)]

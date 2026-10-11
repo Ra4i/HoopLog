@@ -35,12 +35,14 @@
             return await _db.TrainingSessions
                 .AsNoTracking()
                 .Where(s => s.OwnerId == userId)
+                .OrderByDescending(s => s.Date)
                 .ToListAsync();
         }
 
         public async Task<TrainingSession?> GetByIdAsync(int id, string userId)
         {
             return await _db.TrainingSessions
+                .AsNoTracking()
                 .Include(s => s.DrillResults)
                 .ThenInclude(result => result.Drill)
                 .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == userId);
@@ -48,13 +50,13 @@
 
         public async Task<bool> UpdateAsync(TrainingSession newSession, string userId)
         {
-            var sesion = await _db.TrainingSessions
+            var session = await _db.TrainingSessions
                 .FirstOrDefaultAsync(s => s.Id == newSession.Id && s.OwnerId == userId);
-            if (sesion is null) return false;
-            sesion.Date = newSession.Date;
-            sesion.DurationMinutes = newSession.DurationMinutes;
-            sesion.Location = newSession.Location;
-            sesion.Notes = newSession.Notes;
+            if (session is null) return false;
+            session.Date = newSession.Date;
+            session.DurationMinutes = newSession.DurationMinutes;
+            session.Location = newSession.Location;
+            session.Notes = newSession.Notes;
             await _db.SaveChangesAsync();
             return true;
         }
@@ -65,8 +67,8 @@
             if (!ownsSession) return false;
 
             var canUseDrill = await _db.Drills
-                .AnyAsync(d => d.Id == result.DrillId && !d.IsArchived && d.TeamId != null &&
-                    d.Team!.Memberships.Any(m => m.UserId == userId));
+                .AnyAsync(d => d.Id == result.DrillId && !d.IsArchived &&
+                    d.Team.Memberships.Any(m => m.UserId == userId));
             if (!canUseDrill) return false;
 
             _db.DrillResults.Add(result);
@@ -76,14 +78,17 @@
 
         public async Task<DrillResult?> GetDrillResultByIdAsync(int id, string userId)
         {
-            return await _db.DrillResults.Include(dr => dr.Drill)
+            return await _db.DrillResults
+                .AsNoTracking()
+                .Include(dr => dr.Drill)
                 .FirstOrDefaultAsync(dr => dr.Id == id && dr.TrainingSession.OwnerId == userId);
         }
 
         public async Task<bool> UpdateDrillResultAsync(DrillResult newResult, string userId)
         {
             var result = await _db.DrillResults
-                .FirstOrDefaultAsync(dr => dr.Id == newResult.Id && dr.TrainingSession.OwnerId == userId);
+                .FirstOrDefaultAsync(dr => dr.Id == newResult.Id && dr.SessionId == newResult.SessionId &&
+                    dr.TrainingSession.OwnerId == userId);
             if (result is null) return false;
 
             result.Makes = newResult.Makes;

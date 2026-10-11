@@ -8,12 +8,12 @@
         [ForeignKey(nameof(TrainingSession))]
         public int SessionId { get; set; }
 
-        public TrainingSession TrainingSession { get; set; }
+        public TrainingSession TrainingSession { get; set; } = null!;
 
         [ForeignKey(nameof(Drill))]
         public int DrillId { get; set; }
 
-        public Drill Drill { get; set; }
+        public Drill Drill { get; set; } = null!;
 
         public int? Makes { get; set; }
 

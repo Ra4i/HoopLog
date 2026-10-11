@@ -9,6 +9,8 @@
 
     public class SessionsController : Controller
     {
+        private const int MaxDurationSeconds = 86_400;
+
         private readonly ISessionService _sessionService;
         private readonly IDrillService _drillService;
         private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -53,15 +55,11 @@
         [HttpGet]
         public async Task<IActionResult> EditDrillResult(int sessionId, int id)
         {
-            var session = await _sessionService.GetByIdAsync(sessionId, UserId);
-            if (session is null) return NotFound();
-
             var drillResult = await _sessionService.GetDrillResultByIdAsync(id, UserId);
             if (drillResult is null || drillResult.SessionId != sessionId) return NotFound();
 
             var input = new EditDrillResultInputModel
             {
-                DrillId = drillResult.DrillId,
                 Makes = drillResult.Makes,
                 Attempts = drillResult.Attempts,
                 Value = drillResult.Value,
@@ -121,8 +119,7 @@
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _sessionService.DeleteAsync(id, UserId);
-            if (!success)
-                TempData["Error"] = "This training session can't be deleted.";
+            if (!success) return NotFound();
 
             return RedirectToAction(nameof(Index));
         }
@@ -131,9 +128,6 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteDrillResult(int sessionId, int id)
         {
-            var session = await _sessionService.GetByIdAsync(sessionId, UserId);
-            if (session is null) return NotFound();
-
             var deleted = await _sessionService.DeleteDrillResultAsync(sessionId, id, UserId);
             if (!deleted) return NotFound();
 
@@ -160,6 +154,7 @@
             var updatedResult = new DrillResult
             {
                 Id = id,
+                SessionId = sessionId,
                 Notes = input.Notes,
                 Makes = metricType == DrillMetricType.MakesAttempts ? input.Makes : null,
                 Attempts = metricType == DrillMetricType.MakesAttempts ? input.Attempts : null,
@@ -254,6 +249,9 @@
                             type == DrillMetricType.Duration
                                 ? "Duration must be zero or more seconds."
                                 : "Count must be zero or more.");
+                    else if (type == DrillMetricType.Duration && value > MaxDurationSeconds)
+                        ModelState.AddModelError(nameof(AddDrillResultInputModel.Value),
+                            "Duration cannot be longer than 24 hours (86400 seconds).");
                     break;
             }
         }

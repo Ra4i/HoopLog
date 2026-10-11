@@ -10,6 +10,7 @@ namespace HoopLog.ViewModels
         public string Name { get; set; } = null!;
 
         [Required]
+        [EnumDataType(typeof(Category))]
         public Category Category { get; set; }
 
         [Required]
@@ -17,6 +18,7 @@ namespace HoopLog.ViewModels
         public string Description { get; set; } = null!;
 
         [Required]
+        [EnumDataType(typeof(DrillMetricType))]
         public DrillMetricType MetricType { get; set; }
 
         [Range(1, int.MaxValue)]

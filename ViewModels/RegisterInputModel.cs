@@ -4,6 +4,17 @@ namespace HoopLog.ViewModels
 
     public class RegisterInputModel
     {
+        private string _name = null!;
+
+        // Trimmed on binding so the length rule applies to the stored value.
+        [Required]
+        [StringLength(50, MinimumLength = 2)]
+        public string Name
+        {
+            get => _name;
+            set => _name = value?.Trim()!;
+        }
+
         [Required]
         [EmailAddress]
         [StringLength(256)]

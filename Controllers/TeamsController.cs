@@ -13,10 +13,16 @@
 
         private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        public async Task<IActionResult> Index() =>
-            View(await _teams.GetMyMembershipsAsync(UserId));
+        public async Task<IActionResult> Index()
+        {
+            return View(await _teams.GetMyMembershipsAsync(UserId));
+        }
 
-        [HttpGet] public IActionResult Create() => View();
+        [HttpGet] 
+        public IActionResult Create() 
+        {
+            return View();
+        } 
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateTeamInputModel input)
@@ -26,7 +32,11 @@
             return RedirectToAction(nameof(Details), new { id = team.Id });
         }
 
-        [HttpGet] public IActionResult Join() => View();
+        [HttpGet] 
+        public IActionResult Join() 
+        {
+            return View();
+        }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Join(JoinTeamInputModel input)
@@ -52,8 +62,15 @@
             var team = await _teams.GetTeamAsync(id, UserId);
             if (team is null) return NotFound();
 
-            ViewData["IsCoach"] = await _teams.IsCoachAsync(id, UserId);
             return View(team);
+        }
+
+        public async Task<IActionResult> Progress(int id)
+        {
+            var progress = await _teams.GetProgressAsync(id, UserId);
+            if (progress is null) return NotFound();
+
+            return View(progress);
         }
 
         [HttpPost, ValidateAntiForgeryToken]

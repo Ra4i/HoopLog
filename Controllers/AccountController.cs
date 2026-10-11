@@ -24,7 +24,10 @@ namespace HoopLog.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Register() => View();
+        public IActionResult Register()
+        {
+            return View();
+        } 
 
         [AllowAnonymous]
         [HttpPost]
@@ -36,7 +39,8 @@ namespace HoopLog.Controllers
             var user = new User
             {
                 UserName = input.Email,
-                Email = input.Email
+                Email = input.Email,
+                DisplayName = input.Name
             };
 
             var result = await _userManager.CreateAsync(user, input.Password);
@@ -107,6 +111,9 @@ namespace HoopLog.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult AccessDenied() => View();
+        public IActionResult AccessDenied()         
+        {
+            return View();
+        } 
     }
 }
