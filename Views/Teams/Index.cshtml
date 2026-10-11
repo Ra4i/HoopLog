@@ -22,7 +22,7 @@ else
             <tr>
                 <th>Team</th>
                 <th>Your role</th>
-                <th>Joined</th>
+                <th>Joined (UTC)</th>
                 <th></th>
             </tr>
         </thead>
@@ -32,7 +32,7 @@ else
                 <tr>
                     <td>@m.Team.Name</td>
                     <td><span class="badge @(m.Role == HoopLog.Data.Models.Enums.TeamRole.Coach ? "bg-warning text-dark" : "bg-secondary")">@m.Role</span></td>
-                    <td>@m.JoinedAt.ToLocalTime().ToString("d MMM yyyy")</td>
+                    <td>@m.JoinedAt.ToString("dd-MM-yyyy")</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@m.TeamId">Open</a>
                     </td>

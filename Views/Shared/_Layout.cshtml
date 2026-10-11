@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+    // Same DB-backed "Coach" policy that guards DrillsController.
+    var isCoach = User.Identity?.IsAuthenticated == true
+        && (await AuthorizationService.AuthorizeAsync(User, "Coach")).Succeeded;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -26,11 +33,14 @@
                                 <span class="nav-icon">🏠</span> Home
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-link-custom" asp-controller="Drills" asp-action="Index">
-                                <span class="nav-icon">⚡</span> Drills
-                            </a>
-                        </li>
+                        @if (isCoach)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom" asp-controller="Drills" asp-action="Index">
+                                    <span class="nav-icon">⚡</span> Drills
+                                </a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link nav-link-custom" asp-controller="Sessions" asp-action="Index">
                                 <span class="nav-icon">📊</span> Sessions

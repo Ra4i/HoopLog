@@ -62,14 +62,6 @@
     </div>
 </div>
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Error!</strong> @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-
 <div class="action-header">
     <div>
         <a asp-controller="Drills" asp-action="Create" class="btn btn-primary">
@@ -98,7 +90,7 @@
                 {
                     <tr>
                         <td><strong>@item.Name</strong></td>
-                        <td>@item.Category</td>
+                        <td>@item.Category.GetDisplayName()</td>
                         <td>@item.Description</td>
                         <td class="text-nowrap">
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
@@ -116,38 +108,4 @@
 else
 {
     <p class="text-muted">No active drills have been created for your teams yet.</p>
-}
-
-<h2 class="h4 mt-5">Starter Catalog</h2>
-<p class="text-muted">Starter drills are read-only. Copy one to a team to customize it and make it available to its players.</p>
-@if (Model.StarterDrills.Any())
-{
-    <table class="table">
-        <thead>
-            <tr><th>Name</th><th>Category</th><th>Description</th><th>Copy to team</th></tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.StarterDrills)
-            {
-                <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Category</td>
-                    <td>@item.Description</td>
-                    <td>
-                        <form asp-action="CopyStarter" method="post" class="d-flex gap-2">
-                            <input type="hidden" name="StarterDrillId" value="@item.Id" />
-                            <select name="TeamId" class="form-select" required>
-                                <option value="">Choose team</option>
-                                @foreach (var team in Model.CoachedTeams)
-                                {
-                                    <option value="@team.Id">@team.Name</option>
-                                }
-                            </select>
-                            <button type="submit" class="btn btn-outline-primary text-nowrap">Copy</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
 }

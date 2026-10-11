@@ -1,5 +1,9 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
     ViewData["Title"] = "Home";
+    // Same DB-backed "Coach" policy that guards DrillsController.
+    var isCoach = (await AuthorizationService.AuthorizeAsync(User, "Coach")).Succeeded;
 }
 
 <style>
@@ -157,9 +161,12 @@
             <a asp-controller="Sessions" asp-action="Index" class="btn btn-primary btn-lg" style="background: white; color: #2D3561; font-weight: 700;">
                 📊 View Sessions
             </a>
-            <a asp-controller="Drills" asp-action="Index" class="btn btn-outline-primary btn-lg" style="border-color: white; color: white;">
-                ⚡ View Drills
-            </a>
+            @if (isCoach)
+            {
+                <a asp-controller="Drills" asp-action="Index" class="btn btn-outline-primary btn-lg" style="border-color: white; color: white;">
+                    ⚡ View Drills
+                </a>
+            }
         </div>
     </div>
 </div>

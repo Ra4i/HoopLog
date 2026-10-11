@@ -43,6 +43,8 @@ namespace HoopLog
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.SignIn.RequireConfirmedAccount = false;
+                // Existing schema was created with 128-char Identity key columns.
+                options.Stores.MaxLengthForKeys = 128;
             })
             .AddEntityFrameworkStores<HoopLogDbContext>()
             .AddDefaultTokenProviders();

@@ -35,7 +35,8 @@ namespace HoopLog.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("bit");
@@ -49,9 +50,10 @@ namespace HoopLog.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("TeamId")
+                    b.Property<int>("TeamId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -59,62 +61,6 @@ namespace HoopLog.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("Drills");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Category = 0,
-                            Description = "Shoot free throws from the line, track makes out of attempts.",
-                            IsArchived = false,
-                            MetricType = "MakesAttempts",
-                            Name = "Free Throws"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Category = 0,
-                            Description = "Shoot from five fixed spots around the arc.",
-                            IsArchived = false,
-                            MetricType = "MakesAttempts",
-                            Name = "Spot-Up Jumpers"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Category = 1,
-                            Description = "Weave through cones using both hands.",
-                            IsArchived = false,
-                            MetricType = "Count",
-                            Name = "Cone Dribbling"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Category = 2,
-                            Description = "Sprint down and back at increasing distances.",
-                            IsArchived = false,
-                            MetricType = "Duration",
-                            Name = "Suicides"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Category = 4,
-                            Description = "Lateral slides in a defensive stance.",
-                            IsArchived = false,
-                            MetricType = "Count",
-                            Name = "Defensive Slides"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Category = 3,
-                            Description = "Bodyweight strength circuit.",
-                            IsArchived = false,
-                            MetricType = "Count",
-                            Name = "Core Circuit"
-                        });
                 });
 
             modelBuilder.Entity("HoopLog.Data.Models.DrillResult", b =>
@@ -135,7 +81,8 @@ namespace HoopLog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("SessionId")
                         .HasColumnType("int");
@@ -229,10 +176,12 @@ namespace HoopLog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("OwnerId")
                         .IsRequired()
@@ -256,6 +205,11 @@ namespace HoopLog.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -452,7 +406,8 @@ namespace HoopLog.Migrations
                     b.HasOne("HoopLog.Data.Models.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Team");
                 });

@@ -5,7 +5,7 @@
     ViewData["Title"] = "Session Details";
 }
 
-<h1>Session on @Model.Session.Date.ToString("d")</h1>
+<h1>Session on @Model.Session.Date.ToString("dd-MM-yyyy")</h1>
 <p><strong>Duration:</strong> @Model.Session.DurationMinutes min &nbsp;|&nbsp; <strong>Location:</strong> @Model.Session.Location</p>
 <p>@Model.Session.Notes</p>
 
@@ -25,7 +25,7 @@
         {
             <tr>
                 <td>@item.Drill.Name</td>
-                <td>@FormatResult(item)</td>
+                <td>@DrillResultFormatter.Format(item.Drill.MetricType, item.Makes, item.Attempts, item.Value)</td>
                 <td>@item.Notes</td>
                 <td>
                     <a asp-action="EditDrillResult"
@@ -49,69 +49,64 @@
 </table>
 
 <h4>Add Drill Result</h4>
-<form asp-action="AddDrillResult" asp-route-sessionId="@Model.Session.Id" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
+@if (!Model.AvailableDrillEntities.Any())
+{
+    <p class="text-muted">
+        No drills are available to log yet. Join a team with a code from your coach
+        (<a asp-controller="Teams" asp-action="Join">join a team</a>), or ask your coach to add drills to your team.
+    </p>
+}
+else
+{
+    <form asp-action="AddDrillResult" asp-route-sessionId="@Model.Session.Id" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="mb-3">
-        <label class="form-label">Drill</label>
-        <select asp-for="DrillId" class="form-select" id="drillSelect">
-            @foreach (var d in Model.AvailableDrillEntities)
-            {
-                <option value="@d.Id" data-metric="@d.MetricType">@d.Name (@(d.Team!.Name))</option>
-            }
-        </select>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Drill</label>
+            <select asp-for="DrillId" class="form-select" id="drillSelect">
+                @foreach (var d in Model.AvailableDrillEntities)
+                {
+                    <option value="@d.Id" data-metric="@d.MetricType">@d.Name (@d.Team.Name)</option>
+                }
+            </select>
+            <span class="text-danger">@Html.ValidationMessage("DrillId")</span>
+        </div>
 
-    <div class="mb-3 metric-field" data-for="MakesAttempts">
-        <label class="form-label">Makes</label>
-        <input name="Makes" type="number" min="0" class="form-control" />
-        <span class="text-danger">@Html.ValidationMessage("input.Makes")</span>
-    </div>
+        <div class="mb-3 metric-field" data-for="MakesAttempts">
+            <label class="form-label">Makes</label>
+            <input name="Makes" type="number" min="0" class="form-control" />
+            <span class="text-danger">@Html.ValidationMessage("Makes")</span>
+        </div>
 
-    <div class="mb-3 metric-field" data-for="MakesAttempts">
-        <label class="form-label">Attempts</label>
-        <input name="Attempts" type="number" min="0" class="form-control" />
-        <span class="text-danger">@Html.ValidationMessage("input.Attempts")</span>
-    </div>
+        <div class="mb-3 metric-field" data-for="MakesAttempts">
+            <label class="form-label">Attempts</label>
+            <input name="Attempts" type="number" min="1" class="form-control" />
+            <span class="text-danger">@Html.ValidationMessage("Attempts")</span>
+        </div>
 
-    <div class="mb-3 metric-field" data-for="Count Duration">
-        <label class="form-label">Value <span id="valueUnit" class="text-muted"></span></label>
-        <input name="Value" type="number" min="0" class="form-control" />
-        <span class="text-danger">@Html.ValidationMessage("input.Value")</span>
-    </div>
+        <div class="mb-3 metric-field" data-for="Count Duration">
+            <label class="form-label">Value <span id="valueUnit" class="text-muted"></span></label>
+            <input name="Value" type="number" min="0" class="form-control" />
+            <span class="text-danger">@Html.ValidationMessage("Value")</span>
+        </div>
 
-    <div class="mb-3">
-        <label class="form-label">Notes</label>
-        <input name="Notes" class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <input name="Notes" maxlength="500" class="form-control" />
+            <span class="text-danger">@Html.ValidationMessage("Notes")</span>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Add Result</button>
-</form>
+        <button type="submit" class="btn btn-primary">Add Result</button>
+    </form>
+}
 
 <a asp-action="Index" class="btn btn-secondary mt-3">Back to Sessions</a>
-
-@functions {
-    string FormatResult(DrillResult r)
-    {
-        return r.Drill.MetricType switch
-        {
-            DrillMetricType.MakesAttempts when r.Makes.HasValue && r.Attempts is > 0
-                => $"{r.Makes}/{r.Attempts} ({(double)r.Makes.Value / r.Attempts.Value:P0})",
-            DrillMetricType.MakesAttempts when r.Makes.HasValue || r.Attempts.HasValue
-                => $"{r.Makes?.ToString() ?? "-"}/{r.Attempts?.ToString() ?? "-"}",
-            DrillMetricType.Count when r.Value.HasValue
-                => $"{r.Value} reps",
-            DrillMetricType.Duration when r.Value.HasValue
-                => System.TimeSpan.FromSeconds(r.Value.Value).ToString(@"m\:ss"),
-            _ => "—"
-        };
-    }
-}
 
 @section Scripts {
     <script>
         (function () {
             const drillSelect = document.getElementById('drillSelect');
+            if (!drillSelect) return;
             const groups = document.querySelectorAll('.metric-field');
             const valueUnit = document.getElementById('valueUnit');
 

@@ -13,9 +13,9 @@
 
         public DrillMetricType MetricType { get; set; }
 
-        public int? TeamId { get; set; }
+        public int TeamId { get; set; }
 
-        public Team? Team { get; set; }
+        public Team Team { get; set; } = null!;
 
         public bool IsArchived { get; set; }
 

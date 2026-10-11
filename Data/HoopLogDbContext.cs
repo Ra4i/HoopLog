@@ -6,8 +6,6 @@ namespace HoopLog.Data
     using Models;
 	public class HoopLogDbContext : IdentityDbContext<User>
     {
-		public HoopLogDbContext() { }
-
 		public HoopLogDbContext(DbContextOptions<HoopLogDbContext> options) : base(options) { }
 
 		public DbSet<Drill> Drills => Set<Drill>();
@@ -44,10 +42,26 @@ namespace HoopLog.Data
                 .HasOne(d => d.Team)
                 .WithMany()
                 .HasForeignKey(d => d.TeamId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Drill>()
                 .HasIndex(d => d.TeamId);
+
+            modelBuilder.Entity<Drill>(e =>
+            {
+                e.Property(d => d.Name).HasMaxLength(100);
+                e.Property(d => d.Description).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<TrainingSession>(e =>
+            {
+                e.Property(s => s.Location).HasMaxLength(200);
+                e.Property(s => s.Notes).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<DrillResult>()
+                .Property(dr => dr.Notes)
+                .HasMaxLength(500);
 
             modelBuilder.Entity<TrainingSession>()
                 .HasOne(s => s.Owner)
@@ -57,6 +71,11 @@ namespace HoopLog.Data
 
             modelBuilder.Entity<TrainingSession>()
                 .HasIndex(s => s.OwnerId);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.DisplayName)
+                .HasMaxLength(50)
+                .IsRequired();
 
             modelBuilder.Entity<Team>(e =>
             {
@@ -74,16 +93,6 @@ namespace HoopLog.Data
                 e.HasOne(m => m.User).WithMany()
                     .HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
             });
-
-            modelBuilder.Entity<Drill>().HasData(
-                new Drill { Id = 1, Name = "Free Throws", Category = Category.Shooting, Description = "Shoot free throws from the line, track makes out of attempts.", MetricType = DrillMetricType.MakesAttempts },
-                new Drill { Id = 2, Name = "Spot-Up Jumpers", Category = Category.Shooting, Description = "Shoot from five fixed spots around the arc.", MetricType = DrillMetricType.MakesAttempts },
-                new Drill { Id = 3, Name = "Cone Dribbling", Category = Category.BallHandling, Description = "Weave through cones using both hands.", MetricType = DrillMetricType.Count },
-                new Drill { Id = 4, Name = "Suicides", Category = Category.Conditioning, Description = "Sprint down and back at increasing distances.", MetricType = DrillMetricType.Duration },
-                new Drill { Id = 5, Name = "Defensive Slides", Category = Category.Defense, Description = "Lateral slides in a defensive stance.", MetricType = DrillMetricType.Count },
-                new Drill { Id = 6, Name = "Core Circuit", Category = Category.Fitness, Description = "Bodyweight strength circuit.", MetricType = DrillMetricType.Count }
-            );
-
 
             base.OnModelCreating(modelBuilder);
         }
