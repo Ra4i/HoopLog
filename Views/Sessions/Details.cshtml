@@ -57,7 +57,7 @@
         <select asp-for="DrillId" class="form-select" id="drillSelect">
             @foreach (var d in Model.AvailableDrillEntities)
             {
-                <option value="@d.Id" data-metric="@d.MetricType">@d.Name</option>
+                <option value="@d.Id" data-metric="@d.MetricType">@d.Name (@(d.Team!.Name))</option>
             }
         </select>
     </div>

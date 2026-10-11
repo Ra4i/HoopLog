@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Drill>
+﻿@model DrillIndexViewModel
 
 @{
     ViewData["Title"] = "Drills";
@@ -73,56 +73,81 @@
 <div class="action-header">
     <div>
         <a asp-controller="Drills" asp-action="Create" class="btn btn-primary">
-            <span style="margin-right: 0.5rem;">➕</span> Add New Drill
+            <span style="margin-right: 0.5rem;">➕</span> Add Team Drill
         </a>
     </div>
 </div>
 
-@if (Model.Any())
+<h2 class="h4">Your Team Drills</h2>
+@if (Model.TeamGroups.Any())
+{
+    @foreach (var group in Model.TeamGroups)
+    {
+        <h3 class="h5 mt-4">@group.Team.Name</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in group.Drills)
+                {
+                    <tr>
+                        <td><strong>@item.Name</strong></td>
+                        <td>@item.Category</td>
+                        <td>@item.Description</td>
+                        <td class="text-nowrap">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form asp-action="Archive" asp-route-id="@item.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Archive this drill? Existing results will remain visible.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Archive</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+else
+{
+    <p class="text-muted">No active drills have been created for your teams yet.</p>
+}
+
+<h2 class="h4 mt-5">Starter Catalog</h2>
+<p class="text-muted">Starter drills are read-only. Copy one to a team to customize it and make it available to its players.</p>
+@if (Model.StarterDrills.Any())
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>⚽ Name</th>
-                <th>🏷️ Category</th>
-                <th>📝 Description</th>
-                <th>⚙️ Actions</th>
-            </tr>
+            <tr><th>Name</th><th>Category</th><th>Description</th><th>Copy to team</th></tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var item in Model.StarterDrills)
             {
                 <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Category</td>
+                    <td>@item.Description</td>
                     <td>
-                        <strong>@item.Name</strong>
-                    </td>
-                    <td>
-                        <span class="badge badge-primary">@item.Category</span>
-                    </td>
-                    <td>
-                        <span style="color: #666;">@item.Description</span>
-                    </td>
-                    <td>
-                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
-                              onsubmit="return confirm('Delete this drill?');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Delete</button>
+                        <form asp-action="CopyStarter" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="StarterDrillId" value="@item.Id" />
+                            <select name="TeamId" class="form-select" required>
+                                <option value="">Choose team</option>
+                                @foreach (var team in Model.CoachedTeams)
+                                {
+                                    <option value="@team.Id">@team.Name</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-outline-primary text-nowrap">Copy</button>
                         </form>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-}
-else
-{
-    <div class="card" style="border: 2px dashed #FF6B35;">
-        <div class="card-body no-drills">
-            <div class="no-drills-icon">🏀</div>
-            <h5>No Drills Yet</h5>
-            <p>Start creating drills to build your training library. Track your basketball training exercises and improve your skills!</p>
-            <a asp-controller="Drills" asp-action="Create" class="btn btn-primary">
-                Create Your First Drill
-            </a>
-        </div>
-    </div>
 }

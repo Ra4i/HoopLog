@@ -1,0 +1,23 @@
+﻿@model HoopLog.ViewModels.JoinTeamInputModel
+@{
+    ViewData["Title"] = "Join team";
+}
+
+<h1 class="h3 mb-3">Join a team</h1>
+
+<form asp-action="Join" method="post" style="max-width: 480px;">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Code" class="form-label">Team code</label>
+        <input asp-for="Code" class="form-control text-uppercase" maxlength="8" autocomplete="off" />
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Join</button>
+    <a class="btn btn-link" asp-action="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -18,5 +18,8 @@ namespace HoopLog.ViewModels
 
         [Required]
         public DrillMetricType MetricType { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int TeamId { get; set; }
     }
 }

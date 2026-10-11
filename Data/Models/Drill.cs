@@ -13,6 +13,12 @@
 
         public DrillMetricType MetricType { get; set; }
 
+        public int? TeamId { get; set; }
+
+        public Team? Team { get; set; }
+
+        public bool IsArchived { get; set; }
+
         public ICollection<DrillResult> DrillResults { get; set; } = new List<DrillResult>();
     }
 }

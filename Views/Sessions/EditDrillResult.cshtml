@@ -1,24 +1,40 @@
 @model EditDrillResultInputModel
+@using HoopLog.Data.Models.Enums
 @{
     ViewData["Title"] = "Edit Drill Result";
+    var metricType = (DrillMetricType)ViewData["MetricType"]!;
 }
 
 <h1>Edit Drill Result</h1>
+<p class="text-muted">Drill: @ViewData["DrillName"]</p>
 
 <form asp-action="EditDrillResult" asp-route-sessionId="@ViewData["SessionId"]" asp-route-id="@ViewData["DrillResultId"]" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="mb-3">
-        <label asp-for="MadeShots" class="form-label"></label>
-        <input asp-for="MadeShots" class="form-control" />
-        <span asp-validation-for="MadeShots" class="text-danger"></span>
-    </div>
+    @if (metricType == DrillMetricType.MakesAttempts)
+    {
+        <div class="mb-3">
+            <label asp-for="Makes" class="form-label"></label>
+            <input asp-for="Makes" type="number" min="0" class="form-control" />
+            <span asp-validation-for="Makes" class="text-danger"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="Attempts" class="form-label"></label>
-        <input asp-for="Attempts" class="form-control" />
-        <span asp-validation-for="Attempts" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Attempts" class="form-label"></label>
+            <input asp-for="Attempts" type="number" min="1" class="form-control" />
+            <span asp-validation-for="Attempts" class="text-danger"></span>
+        </div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <label asp-for="Value" class="form-label">
+                Value <span class="text-muted">@(metricType == DrillMetricType.Duration ? "(seconds)" : "(reps)")</span>
+            </label>
+            <input asp-for="Value" type="number" min="0" class="form-control" />
+            <span asp-validation-for="Value" class="text-danger"></span>
+        </div>
+    }
 
     <div class="mb-3">
         <label asp-for="Notes" class="form-label"></label>

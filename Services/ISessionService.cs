@@ -4,14 +4,14 @@ namespace HoopLog.Services
 
     public interface ISessionService
     {
-        Task<IEnumerable<TrainingSession>> GetSessionsAsync();
-        Task<TrainingSession?> GetByIdAsync(int id);
-        Task CreateAsync(TrainingSession session);
-        Task<bool> UpdateAsync(TrainingSession newSession);
-        Task<bool> DeleteAsync(int id);
-        Task AddDrillResultAsync(DrillResult result);
-        Task<DrillResult?> GetDrillResultByIdAsync(int id);
-        Task<bool> UpdateDrillResultAsync(DrillResult newResult);
-        Task<bool> DeleteDrillResultAsync(int sessionId, int id);
+        Task<IEnumerable<TrainingSession>> GetSessionsAsync(string userId);
+        Task<TrainingSession?> GetByIdAsync(int id, string userId);
+        Task CreateAsync(TrainingSession session, string userId);
+        Task<bool> UpdateAsync(TrainingSession newSession, string userId);
+        Task<bool> DeleteAsync(int id, string userId);
+        Task<bool> AddDrillResultAsync(DrillResult result, string userId);
+        Task<DrillResult?> GetDrillResultByIdAsync(int id, string userId);
+        Task<bool> UpdateDrillResultAsync(DrillResult newResult, string userId);
+        Task<bool> DeleteDrillResultAsync(int sessionId, int id, string userId);
     }
 }

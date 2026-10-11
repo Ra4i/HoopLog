@@ -1,9 +1,9 @@
 ﻿namespace HoopLog.Controllers
 {
     using Data.Models;
-    using HoopLog.Data.Models.Enums;
+    using Data.Models.Enums;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Rendering;
+    using System.Security.Claims;
     using Services;
     using ViewModels;
 
@@ -11,6 +11,7 @@
     {
         private readonly ISessionService _sessionService;
         private readonly IDrillService _drillService;
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         public SessionsController(ISessionService sessionService, IDrillService drillService)
         {
@@ -20,7 +21,7 @@
 
         public async Task<IActionResult> Index()
         {
-            var sessions = await _sessionService.GetSessionsAsync();
+            var sessions = await _sessionService.GetSessionsAsync(UserId);
             return View(sessions);
         }
 
@@ -34,7 +35,7 @@
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var session = await _sessionService.GetByIdAsync(id);
+            var session = await _sessionService.GetByIdAsync(id, UserId);
             if (session is null) return NotFound();
 
             var input = new CreateTrainingSessionInputModel
@@ -52,22 +53,22 @@
         [HttpGet]
         public async Task<IActionResult> EditDrillResult(int sessionId, int id)
         {
-            var session = await _sessionService.GetByIdAsync(sessionId);
+            var session = await _sessionService.GetByIdAsync(sessionId, UserId);
             if (session is null) return NotFound();
 
-            var drillResult = await _sessionService.GetDrillResultByIdAsync(id);
+            var drillResult = await _sessionService.GetDrillResultByIdAsync(id, UserId);
             if (drillResult is null || drillResult.SessionId != sessionId) return NotFound();
 
             var input = new EditDrillResultInputModel
             {
                 DrillId = drillResult.DrillId,
-                MadeShots = drillResult.Makes,
+                Makes = drillResult.Makes,
                 Attempts = drillResult.Attempts,
+                Value = drillResult.Value,
                 Notes = drillResult.Notes
             };
 
-            ViewData["SessionId"] = sessionId;
-            ViewData["DrillResultId"] = id;
+            SetEditDrillResultViewData(sessionId, id, drillResult.Drill);
             return View(input);
         }
 
@@ -90,7 +91,7 @@
                 Notes = input.Notes
             };
 
-            var success = await _sessionService.UpdateAsync(trainingSession);
+            var success = await _sessionService.UpdateAsync(trainingSession, UserId);
             if (!success) return NotFound();
 
             return RedirectToAction(nameof(Details), new { id });
@@ -111,7 +112,7 @@
                 Notes = input.Notes
             };
 
-            await _sessionService.CreateAsync(trainingSession);
+            await _sessionService.CreateAsync(trainingSession, UserId);
             return RedirectToAction(nameof(Index));
         }
 
@@ -119,7 +120,7 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _sessionService.DeleteAsync(id);
+            var success = await _sessionService.DeleteAsync(id, UserId);
             if (!success)
                 TempData["Error"] = "This training session can't be deleted.";
 
@@ -130,10 +131,10 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteDrillResult(int sessionId, int id)
         {
-            var session = await _sessionService.GetByIdAsync(sessionId);
+            var session = await _sessionService.GetByIdAsync(sessionId, UserId);
             if (session is null) return NotFound();
 
-            var deleted = await _sessionService.DeleteDrillResultAsync(sessionId, id);
+            var deleted = await _sessionService.DeleteDrillResultAsync(sessionId, id, UserId);
             if (!deleted) return NotFound();
 
             return RedirectToAction(nameof(Details), new { id = sessionId });
@@ -143,28 +144,29 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditDrillResult(int sessionId, int id, EditDrillResultInputModel input)
         {
-            var session = await _sessionService.GetByIdAsync(sessionId);
-            if (session is null) return NotFound();
+            var drillResult = await _sessionService.GetDrillResultByIdAsync(id, UserId);
+            if (drillResult is null || drillResult.SessionId != sessionId) return NotFound();
+
+            var metricType = drillResult.Drill.MetricType;
+            if (ModelState.IsValid)
+                ValidateResultForMetric(metricType, input.Makes, input.Attempts, input.Value);
 
             if (!ModelState.IsValid)
             {
-                ViewData["SessionId"] = sessionId;
-                ViewData["DrillResultId"] = id;
+                SetEditDrillResultViewData(sessionId, id, drillResult.Drill);
                 return View(input);
             }
-
-            var madeShots = input.MadeShots ?? 0;
-            var attempts = input.Attempts ?? 0;
 
             var updatedResult = new DrillResult
             {
                 Id = id,
-                Makes = madeShots,
-                Attempts = attempts,
-                Notes = input.Notes
+                Notes = input.Notes,
+                Makes = metricType == DrillMetricType.MakesAttempts ? input.Makes : null,
+                Attempts = metricType == DrillMetricType.MakesAttempts ? input.Attempts : null,
+                Value = metricType != DrillMetricType.MakesAttempts ? input.Value : null
             };
 
-            var success = await _sessionService.UpdateDrillResultAsync(updatedResult);
+            var success = await _sessionService.UpdateDrillResultAsync(updatedResult, UserId);
             if (!success) return NotFound();
 
             return RedirectToAction(nameof(Details), new { id = sessionId });
@@ -172,7 +174,7 @@
 
         public async Task<IActionResult> Details(int id)
         {
-            var session = await _sessionService.GetByIdAsync(id);
+            var session = await _sessionService.GetByIdAsync(id, UserId);
             if (session is null) return NotFound();
 
             return View(await BuildDetailsViewModel(session));
@@ -182,20 +184,22 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddDrillResult(int sessionId, AddDrillResultInputModel input)
         {
-            var session = await _sessionService.GetByIdAsync(sessionId);
+            var session = await _sessionService.GetByIdAsync(sessionId, UserId);
             if (session is null) return NotFound();
 
             if (!ModelState.IsValid)
                 return View(nameof(Details), await BuildDetailsViewModel(session, input.DrillId));
 
-            var drill = await _drillService.GetByIdAsync(input.DrillId);
+            var drill = await _drillService.GetAvailableByIdAsync(input.DrillId, UserId);
             if (drill is null)
             {
-                ModelState.AddModelError(nameof(input.DrillId), "Selected drill does not exist.");
+                ModelState.AddModelError(nameof(input.DrillId), "Selected drill is not available.");
                 return View(nameof(Details), await BuildDetailsViewModel(session, input.DrillId));
             }
 
-            ValidateResultForMetric(drill.MetricType, input);
+            ValidateResultForMetric(drill.MetricType, input.Makes, input.Attempts, input.Value);
+            if (!ModelState.IsValid)
+                return View(nameof(Details), await BuildDetailsViewModel(session, input.DrillId));
 
             var newResult = new DrillResult
             {
@@ -207,15 +211,21 @@
                 Value = drill.MetricType != DrillMetricType.MakesAttempts ? input.Value : null
             };
 
-            await _sessionService.AddDrillResultAsync(newResult);
+            if (!await _sessionService.AddDrillResultAsync(newResult, UserId)) return NotFound();
             return RedirectToAction(nameof(Details), new { id = sessionId });
         }
 
-        
+        private void SetEditDrillResultViewData(int sessionId, int drillResultId, Drill drill)
+        {
+            ViewData["SessionId"] = sessionId;
+            ViewData["DrillResultId"] = drillResultId;
+            ViewData["DrillName"] = drill.Name;
+            ViewData["MetricType"] = drill.MetricType;
+        }
 
         private async Task<SessionDetailsViewModel> BuildDetailsViewModel(TrainingSession session, int selectedDrillId = 0)
         {
-            var drills = await _drillService.GetDrillsAsync();
+            var drills = await _drillService.GetAvailableDrillsAsync(UserId);
 
             return new SessionDetailsViewModel
             {
@@ -224,23 +234,23 @@
                 AvailableDrillEntities = drills
             };
         }
-        private void ValidateResultForMetric(DrillMetricType type, AddDrillResultInputModel input)
+        private void ValidateResultForMetric(DrillMetricType type, int? makes, int? attempts, int? value)
         {
             switch (type)
             {
                 case DrillMetricType.MakesAttempts:
-                    if (input.Attempts is null or <= 0)
-                        ModelState.AddModelError(nameof(input.Attempts), "Attempts must be at least 1.");
-                    if (input.Makes is null or < 0)
-                        ModelState.AddModelError(nameof(input.Makes), "Makes cannot be negative.");
-                    if (input.Makes.HasValue && input.Attempts.HasValue && input.Makes > input.Attempts)
-                        ModelState.AddModelError(nameof(input.Makes), "Makes cannot exceed attempts.");
+                    if (attempts is null or <= 0)
+                        ModelState.AddModelError(nameof(AddDrillResultInputModel.Attempts), "Attempts must be at least 1.");
+                    if (makes is null or < 0)
+                        ModelState.AddModelError(nameof(AddDrillResultInputModel.Makes), "Makes cannot be negative.");
+                    if (makes.HasValue && attempts.HasValue && makes > attempts)
+                        ModelState.AddModelError(nameof(AddDrillResultInputModel.Makes), "Makes cannot exceed attempts.");
                     break;
 
                 case DrillMetricType.Count:
                 case DrillMetricType.Duration:
-                    if (input.Value is null or < 0)
-                        ModelState.AddModelError(nameof(input.Value),
+                    if (value is null or < 0)
+                        ModelState.AddModelError(nameof(AddDrillResultInputModel.Value),
                             type == DrillMetricType.Duration
                                 ? "Duration must be zero or more seconds."
                                 : "Count must be zero or more.");

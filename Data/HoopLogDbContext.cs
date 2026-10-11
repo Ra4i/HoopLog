@@ -1,10 +1,11 @@
 namespace HoopLog.Data
 {
     using HoopLog.Data.Models.Enums;
+    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
     using Models;
-	public class HoopLogDbContext : DbContext
-	{
+	public class HoopLogDbContext : IdentityDbContext<User>
+    {
 		public HoopLogDbContext() { }
 
 		public HoopLogDbContext(DbContextOptions<HoopLogDbContext> options) : base(options) { }
@@ -14,6 +15,10 @@ namespace HoopLog.Data
 		public DbSet<DrillResult> DrillResults => Set<DrillResult>();
 
 		public DbSet<TrainingSession> TrainingSessions => Set<TrainingSession>();
+
+        public DbSet<Team> Teams => Set<Team>();
+
+        public DbSet<TeamMembership> TeamMemberships => Set<TeamMembership>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,7 +30,7 @@ namespace HoopLog.Data
 
             modelBuilder.Entity<DrillResult>()
                 .HasOne(dr => dr.Drill)
-                .WithMany()
+                .WithMany(d => d.DrillResults)
                 .HasForeignKey(dr => dr.DrillId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -34,6 +39,41 @@ namespace HoopLog.Data
                 .HasConversion<string>()
                 .HasMaxLength(50)
                 .HasDefaultValue(DrillMetricType.MakesAttempts);
+
+            modelBuilder.Entity<Drill>()
+                .HasOne(d => d.Team)
+                .WithMany()
+                .HasForeignKey(d => d.TeamId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Drill>()
+                .HasIndex(d => d.TeamId);
+
+            modelBuilder.Entity<TrainingSession>()
+                .HasOne(s => s.Owner)
+                .WithMany()
+                .HasForeignKey(s => s.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TrainingSession>()
+                .HasIndex(s => s.OwnerId);
+
+            modelBuilder.Entity<Team>(e =>
+            {
+                e.Property(t => t.Name).HasMaxLength(100).IsRequired();
+                e.Property(t => t.JoinCode).HasMaxLength(8).IsRequired();
+                e.HasIndex(t => t.JoinCode).IsUnique();
+            });
+
+            modelBuilder.Entity<TeamMembership>(e =>
+            {
+                e.Property(m => m.Role).HasConversion<string>().HasMaxLength(20);
+                e.HasIndex(m => new { m.TeamId, m.UserId }).IsUnique();   
+                e.HasOne(m => m.Team).WithMany(t => t.Memberships)
+                    .HasForeignKey(m => m.TeamId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.User).WithMany()
+                    .HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
+            });
 
             modelBuilder.Entity<Drill>().HasData(
                 new Drill { Id = 1, Name = "Free Throws", Category = Category.Shooting, Description = "Shoot free throws from the line, track makes out of attempts.", MetricType = DrillMetricType.MakesAttempts },
