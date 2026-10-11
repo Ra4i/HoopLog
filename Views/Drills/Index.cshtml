@@ -90,7 +90,7 @@
                 {
                     <tr>
                         <td><strong>@item.Name</strong></td>
-                        <td>@item.Category</td>
+                        <td>@item.Category.GetDisplayName()</td>
                         <td>@item.Description</td>
                         <td class="text-nowrap">
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>

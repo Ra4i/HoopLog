@@ -7,10 +7,12 @@ namespace HoopLog.ViewModels
         private static readonly DateTime EarliestDate = new(2000, 1, 1);
 
         [Required]
+        [DataType(DataType.Date)]
         public DateTime? Date { get; set; }
 
         [Required]
         [Range(1, 600, ErrorMessage = "Duration must be between 1 and 600 minutes.")]
+        [Display(Name = "Duration (minutes)")]
         public int? DurationMinutes { get; set; }
 
         [StringLength(200)]

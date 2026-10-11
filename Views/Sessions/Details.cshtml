@@ -5,7 +5,7 @@
     ViewData["Title"] = "Session Details";
 }
 
-<h1>Session on @Model.Session.Date.ToString("d")</h1>
+<h1>Session on @Model.Session.Date.ToString("dd-MM-yyyy")</h1>
 <p><strong>Duration:</strong> @Model.Session.DurationMinutes min &nbsp;|&nbsp; <strong>Location:</strong> @Model.Session.Location</p>
 <p>@Model.Session.Notes</p>
 

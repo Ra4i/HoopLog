@@ -19,6 +19,7 @@ namespace HoopLog.ViewModels
 
         [Required]
         [EnumDataType(typeof(DrillMetricType))]
+        [Display(Name = "Metric type")]
         public DrillMetricType MetricType { get; set; }
     }
 }

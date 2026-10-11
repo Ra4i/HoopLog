@@ -19,9 +19,11 @@ namespace HoopLog.ViewModels
 
         [Required]
         [EnumDataType(typeof(DrillMetricType))]
+        [Display(Name = "Metric type")]
         public DrillMetricType MetricType { get; set; }
 
         [Range(1, int.MaxValue)]
+        [Display(Name = "Team")]
         public int TeamId { get; set; }
     }
 }

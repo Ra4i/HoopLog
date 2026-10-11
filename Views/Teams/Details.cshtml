@@ -53,7 +53,7 @@
             <tr>
                 <td>@m.DisplayName@(m.UserId == currentUserId ? " (you)" : "")</td>
                 <td><span class="badge @(m.Role == TeamRole.Coach ? "bg-warning text-dark" : "bg-secondary")">@m.Role</span></td>
-                <td>@m.JoinedAt.ToString("d MMM yyyy")</td>
+                <td>@m.JoinedAt.ToString("dd-MM-yyyy")</td>
                 @if (isCoach)
                 {
                     <td class="text-end">

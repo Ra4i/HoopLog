@@ -28,6 +28,7 @@ namespace HoopLog.ViewModels
         [Required]
         [DataType(DataType.Password)]
         [Compare(nameof(Password))]
+        [Display(Name = "Confirm password")]
         public string ConfirmPassword { get; set; } = null!;
     }
 }

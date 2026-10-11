@@ -83,7 +83,7 @@
             var trainingSession = new TrainingSession
             {
                 Id = id,
-                Date = input.Date!.Value,
+                Date = input.Date!.Value.Date,
                 DurationMinutes = input.DurationMinutes!.Value,
                 Location = input.Location,
                 Notes = input.Notes
@@ -104,7 +104,7 @@
 
             var trainingSession = new TrainingSession
             {
-                Date = input.Date!.Value,
+                Date = input.Date!.Value.Date,
                 DurationMinutes = input.DurationMinutes!.Value,
                 Location = input.Location,
                 Notes = input.Notes

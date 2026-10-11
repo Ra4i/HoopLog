@@ -7,6 +7,7 @@ namespace HoopLog.ViewModels
         public const int MaxAttempts = 10_000;
         public const int MaxValue = 100_000;
 
+        [Display(Name = "Drill")]
         public int DrillId { get; set; }
 
 
